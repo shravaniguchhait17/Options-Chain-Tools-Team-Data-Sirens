@@ -1,5 +1,5 @@
 import React from 'react';
-
+// import { impliedVolatility } from './DataDisplay.js';
 const Table = ({ data }) => {
 
 if (!data || data.length == 0) {
@@ -52,7 +52,9 @@ if (!data || data.length == 0) {
             <td>0</td>
             <td>{item.putVol}</td> 
           </tr>
-        ))}
+        )
+        
+        )}
       </tbody>
     </table>
   );
