@@ -9,6 +9,11 @@ if (!data || data.length == 0) {
     <table>
       <thead>
         <tr>
+          <th class="text-center" id ="calls" colspan ="8">CALLS</th>
+          {/* <th></th> */}
+          <th class="text-center" id ="calls" colspan ="11">PUTS</th>
+        </tr>
+        <tr>
           <th>Symbol</th>
           <th>Volume</th>
           <th>IV</th>
@@ -30,14 +35,14 @@ if (!data || data.length == 0) {
       <tbody>
         {data.map((item) => (
           <tr key={item.id}>
-            <td>{item.symbol}</td>
-            <td>{item.callVol}</td>
-            <td>0</td>
-            <td>{item.callLtp}</td>
-            <td>{item.callBidQ}</td>
-            <td>{item.callBidP}</td>
-            <td>{item.callAskP}</td>
-            <td>{item.callAskQ}</td>
+            <td class ="bg-yellow">{item.symbol}</td>
+            <td class ="bg-yellow">{item.callVol}</td>
+            <td class ="bg-yellow">0</td>
+            <td class ="bg-yellow">{item.callLtp}</td>
+            <td class ="bg-yellow">{item.callBidQ}</td>
+            <td class ="bg-yellow">{item.callBidP}</td>
+            <td class ="bg-yellow">{item.callAskP}</td>
+            <td class ="bg-yellow">{item.callAskQ}</td>
             <td>{item.strikePrice}</td>
             <td>{item.putBidQ}</td>
             <td>{item.putBidP}</td>

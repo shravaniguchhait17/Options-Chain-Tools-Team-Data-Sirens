@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Table from './Table';
 import $ from 'jquery';
-// import './styles.css';
+import './styles.css';
 import 'datatables.net';
 // import axios from 'axios';
 
@@ -12,7 +12,6 @@ const DataDisplay = () => {
   const [data, setData] = useState([]);
 
    
-  
 
   useEffect(() => {
     
