@@ -1,10 +1,20 @@
+// import { stock, row } from './classes.js';
+const { stock } = require('./stock.js');
+// const row = require('./row');
+const { row } = require('./row.js');
+
+
+
 const express = require('express');
 const net = require('net');
 const WebSocket = require('ws');
  
 const cors = require('cors');
+const { timeStamp } = require('console');
 
 // for allowing cors 
+let stocks = [];
+let rows = [];
 const app = express();
 app.use(cors({ origin: 'http://localhost:3000' }));
 
@@ -13,7 +23,42 @@ const port1 = 8000; // Choose a port number for backend - frontend connection
 const port2 = 9011; //should match with server port number - port number for server-backend connection
 
 
+function compareStocks(a, b) {
+  if (a.underlying < b.underlying) {
+    return -1;
+  } 
+  else{
+    return 1;
+  }
+}
+function compareRows(a, b) {
+  if (a.underlying < b.underlying) {
+    return -1;
+  } 
+  else if(a.underlying > b.underlying){
+    return 1;
+  }
+
+  if(a.strikePrice < b.strikePrice){
+    return -1;
+  }
+  else if(a.strikePrice > b.strikePrice){
+    return 1;
+  }
+
+  const dateA = new Date(a.expiry);
+  const dateB = new Date(b.expiry);
+  if(dateA.getTime() < dateB.getTime()){
+    return -1;
+  }
+  else if(dateA.getTime() > dateB.getTime()){
+    return 1;
+  }
  
+  return 0;
+}
+
+
     // Establish a TCP/IP connection with the Java server
 const serverClient = net.createConnection({ port: port2 }, () => {
 
@@ -72,7 +117,77 @@ function parsePacket(buffer , packetStructure) {
   });
 
   // console.log(result);
-
+  symb = result["tradingSymbol"];
+  if(/\d/.test(symb)){
+    temp = symb.search(/\d/);
+    ul = symb.slice(0, temp);
+    expiry = symb.slice(temp, temp+7);
+    strikeP = symb.slice(temp+7, -2);
+    // console.log(ul, ':', expiry, ':', strikeP);
+    if(symb.slice(-2) === "CE"){
+      found = false;
+      for(s of rows){
+        if(s.underlying === ul && s.expiry === expiry && s.strikePrice === strikeP){
+          // console.log("Called updateeeeeeeeee", BigInt(s.callTimestamp), BigInt(result["timestamp"]));
+          // callTs, putTs, ltp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+          s.update(result["timestamp"], s.putTimestamp, result["lastTradedPrice"], 
+            s.putLtp, result["lastTradedQuantity"], s.putLtq, result["volume"], 
+            s.putVol, result["askPrice"], result["askQuantity"], s.putAskQ, 
+            s.putAskP, result["bidPrice"], result["bidQuantity"], s.putBidQ, 
+            s.putBidP, result["openInterest"], s.putOI, result["previousClosePrice"], s.putPCP, 
+            result["previousOpenInterest"], s.putPOI);
+          found = true;
+        }
+      }
+      // symbol, ul, expiry, callTs, putTs, sp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+      if(!found){
+        rows.push(new row(symb, ul, expiry, result["timestamp"], 0, strikeP,
+        result["lastTradedPrice"], 0, result["lastTradedQuantity"], 0, result["volume"], 0, 
+        result["askPrice"], result["askQuantity"], 0, 0, result["bidPrice"], result["bidQuantity"], 
+        0, 0, result["openInterest"], 0, result["previousClosePrice"], 0, result["previousOpenInterest"], 
+        0))
+        rows.sort(compareRows);
+      }
+    }
+    else if(symb.slice(-2) === "PE"){
+      found = false;
+      for(s of rows){
+        if(s.underlying === ul && s.expiry === expiry && s.strikePrice === strikeP){
+          // console.log("Called updateeeeeeeeee", BigInt(s.putTimestamp), BigInt(result["timestamp"]));
+          // callTs, putTs, ltp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+          s.update(s.callTimestamp, result["timestamp"],   
+            s.callLtp, result["lastTradedPrice"], s.callLtq, result["lastTradedQuantity"],  
+            s.callVol, result["volume"], s.callAskP, s.callAskQ, result["askQuantity"],
+            result["askPrice"], s.callBidP, s.callBidQ, result["bidQuantity"],
+            result["bidPrice"],  s.callOI, result["openInterest"],  s.callPCP, result["previousClosePrice"],
+            s.callPOI, result["previousOpenInterest"]);
+          found = true;
+        }
+      }
+      // symbol, ul, expiry, callTs, putTs, sp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, 
+      // callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+      if(!found){
+        rows.push(new row(symb, ul, expiry, 0, result["timestamp"], strikeP,
+        0, result["lastTradedPrice"], 0, result["lastTradedQuantity"], 0, result["volume"],
+        0, 0, result["askPrice"], result["askQuantity"], 0, 0, result["bidPrice"], result["bidQuantity"], 
+        0, result["openInterest"], 0, result["previousClosePrice"], 0, result["previousOpenInterest"]))
+        rows.sort(compareRows);
+      }
+    }
+  }
+  else{
+    found = false;
+    for(s of stocks){
+      if(s.symbol === symb){
+        s.update(result["timestamp"], result["lastTradedPrice"]);
+        found = true;
+      }
+    }
+    if(!found){
+      stocks.push(new stock(result["tradingSymbol"], result["tradingSymbol"], result["timestamp"], result["lastTradedPrice"]))
+      stocks.sort(compareStocks);
+    }
+  }
   return result;
 }
 
@@ -120,11 +235,30 @@ function broadcastData(data) {
     // Send the data to all connected WebSocket clients 
     for (const client of clients) {
       if (client.readyState === WebSocket.OPEN) {
-        // console.log("sending data to client");
-        (Object.entries(data)).forEach((entry) => {
-          client.send(JSON.stringify(entry));
+        console.log("sending data to client");
+        // (Object.entries(data)).forEach((entry) => {
+        //   client.send(JSON.stringify(entry));
+        // });
+        temp = "";
+        stocks.forEach((entry) => {
+          // console.log(JSON.stringify(entry));
+          // client.send(JSON.stringify(entry));
+          temp = temp.concat(JSON.stringify(entry));
+          temp = temp.concat('-');
+    
         });
+        rows.forEach((entry) => {
+          // console.log(JSON.stringify(entry));
+          // client.send(JSON.stringify(entry));
+          temp = temp.concat(JSON.stringify(entry));
+          temp = temp.concat('-');
+    
+      
+        });
+        temp = temp.slice(0, -1)
+        client.send(temp);
         // client.send(JSON.stringify(data));
+        // client.send("end");
       }
     }
 }
