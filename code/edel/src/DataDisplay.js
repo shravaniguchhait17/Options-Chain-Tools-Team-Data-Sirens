@@ -234,13 +234,13 @@ const formattedDateTime = format(parsedDate, 'M/d/yyyy') + ', ' + format(toDate(
         stockPrice = stockPrice_midcaps;
       }
 
-   
       if(call_put === 'call')
       {
         const impliedVolatility = iv.getImpliedVolatility(item.callLtp/100, stockPrice/100, strikePrice, TTM/365, interestRate, call_put);
         // console.log(stockPrice);
         // console.log(strikePrice);
         console.log("Implied Volatility:", impliedVolatility);
+        item.callImpliedVolatility = impliedVolatility
       }
       else if (call_put === 'put') 
       {
@@ -248,8 +248,9 @@ const formattedDateTime = format(parsedDate, 'M/d/yyyy') + ', ' + format(toDate(
         // console.log(stockPrice);
         // console.log(strikePrice);
         console.log("Implied Volatility:", impliedVolatility);
+        item.putImpliedVolatility = impliedVolatility
       }
-    
+      
 
       // const calculatedOptionPrice = bs.blackScholes(stockPrice, strikePrice, TTM, impliedVolatility, interestRate, call_put);
       // console.log("Calculated Option Price:", calculatedOptionPrice);
@@ -341,5 +342,6 @@ const formattedDateTime = format(parsedDate, 'M/d/yyyy') + ', ' + format(toDate(
   );
 };
 
+// export { impliedVolatility };
 export default DataDisplay;
-// export const impliedVolatility;
+

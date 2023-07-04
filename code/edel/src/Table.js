@@ -1,7 +1,9 @@
 import React from 'react';
-// import { impliedVolatility } from './DataDisplay.js';
+// import impliedVolatility from './implied-volatility';
+// const iv = require("./implied-volatility");
+import { impliedVolatility } from './DataDisplay.js';
 const Table = ({ data }) => {
-
+// console.log(impliedVolatility);
 if (!data || data.length == 0) {
     return null; // If data is undefined, return null to not render anything
 }   
@@ -34,10 +36,11 @@ if (!data || data.length == 0) {
       </thead>
       <tbody>
         {data.map((item) => (
+          
           <tr key={item.id}>
             <td class ="bg-yellow">{item.symbol}</td>
             <td class ="bg-yellow">{item.callVol}</td>
-            <td class ="bg-yellow">0</td>
+            <td class ="bg-yellow">{item.callImpliedVolatility ? item.callImpliedVolatility * 100 : '-'}</td>
             <td class ="bg-yellow">{item.callLtp}</td>
             <td class ="bg-yellow">{item.callBidQ}</td>
             <td class ="bg-yellow">{item.callBidP}</td>
@@ -49,7 +52,7 @@ if (!data || data.length == 0) {
             <td>{item.putAskP}</td>
             <td>{item.putAskQ}</td>
             <td>{item.putLtp}</td>
-            <td>0</td>
+            <td>{item.putImpliedVolatility ? item.putImpliedVolatility * 100 : '-'}</td>
             <td>{item.putVol}</td> 
           </tr>
         )
