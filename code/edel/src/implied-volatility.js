@@ -1,22 +1,8 @@
-
 var bs = require("./black-scholes");
 
-/**
- * Calculate a close estimate of implied volatility given an option price.  A
- * binary search type approach is used to determine the implied volatility.
- *
- * @param {Number} expectedCost The market price of the option
- * @param {Number} s Current price of the underlying
- * @param {Number} k Strike price
- * @param {Number} t Time to experiation in years
- * @param {Number} r Anual risk-free interest rate as a decimal
- * @param {String} callPut The type of option priced - "call" or "put"
- * @param {Number} [estimate=.1] An initial estimate of implied volatility
- * @returns {Number} The implied volatility estimate
- */
 function getImpliedVolatility(expectedCost, s, k, t, r, callPut, estimate)
 {
-  console.log(expectedCost);
+  // console.log(expectedCost);
   estimate = estimate || .1;
   var low = 0;
   var high = Infinity;

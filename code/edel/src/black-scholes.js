@@ -1,18 +1,3 @@
-/**
- * Black-Scholes option pricing formula and supporting statistical functions.
- * @module black-scholes
- * @author Matt Loppatto <mattloppatto@gmail.com>
- * @copyright 2014 Matt Loppatto
- */
-
-/**
- * Standard normal cumulative distribution function.  The probability is estimated
- * by expanding the CDF into a series using the first 100 terms.
- * See {@link http://en.wikipedia.org/wiki/Normal_distribution#Cumulative_distribution_function|Wikipedia page}.
- *
- * @param {Number} x The upper bound to integrate over.  This is P{Z <= x} where Z is a standard normal random variable.
- * @returns {Number} The probability that a standard normal random variable will be less than or equal to x
- */
 function stdNormCDF(x)
 {
   var probability = 0;
@@ -39,13 +24,7 @@ function stdNormCDF(x)
   return probability;
 }
 
-/**
- * Double factorial.  See {@link http://en.wikipedia.org/wiki/Double_factorial|Wikipedia page}.
- * @private
- *
- * @param {Number} n The number to calculate the double factorial of
- * @returns {Number} The double factorial of n
- */
+
 function _doubleFactorial(n)
 {
   var val = 1;
@@ -56,19 +35,6 @@ function _doubleFactorial(n)
   return val;
 }
 
-/**
- * Black-Scholes option pricing formula.
- * See {@link http://en.wikipedia.org/wiki/Black%E2%80%93Scholes_model#Black-Scholes_formula|Wikipedia page}
- * for pricing puts in addition to calls.
- *
- * @param   {Number} s       Current price of the underlying
- * @param   {Number} k       Strike price
- * @param   {Number} t       Time to experiation in years
- * @param   {Number} v       Volatility as a decimal
- * @param   {Number} r       Anual risk-free interest rate as a decimal
- * @param   {String} callPut The type of option to be priced - "call" or "put"
- * @returns {Number}         Price of the option
- */
 function blackScholes(s, k, t, v, r, callPut)
 {
   // console.log(s);

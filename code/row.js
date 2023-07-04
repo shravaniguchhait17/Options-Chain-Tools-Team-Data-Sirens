@@ -31,7 +31,7 @@ class row {
     update(callTs, putTs, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI) {
         
         if(BigInt(this.callTimestamp) <= BigInt(callTs) && BigInt(this.putTimestamp) <= BigInt(putTs)){
-            console.log("updated option: ", this.symbol);
+            // console.log("updated option: ", this.symbol);
             this.callTimestamp = callTs;
             this.putTimestamp = putTs;
             this.callLtp = callLtp;
@@ -60,4 +60,3 @@ class row {
   }
 
   module.exports = { row };
-// module.exports = row;

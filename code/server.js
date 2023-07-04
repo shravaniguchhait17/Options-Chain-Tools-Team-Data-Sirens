@@ -11,8 +11,7 @@ const WebSocket = require('ws');
  
 const cors = require('cors');
 const { timeStamp } = require('console');
-
-// for allowing cors 
+ 
 let stocks = [];
 let rows = [];
 const app = express();
@@ -70,9 +69,7 @@ const serverClient = net.createConnection({ port: port2 }, () => {
 });
   
     // Handle data received from the Java server
-// let dataBuffer = Buffer.alloc(0);
  
-// const packetSize = 130;
 const packetStructure = [
   { name: 'packetLength', type: 'Int32', offset: 0, length: 4 },
   { name: 'tradingSymbol', type: 'String', offset: 4, length: 30 },
@@ -92,11 +89,9 @@ const packetStructure = [
 
 function parsePacket(buffer , packetStructure) { 
   const result = {};
-
-  // console.log("here in parse packet");
+ 
   packetStructure.forEach(field => {
-    const { name, type, offset, length } = field;
-      // console.log(name, type, offset, length);
+    const { name, type, offset, length } = field; 
     let value;
     switch (type) {
       case 'Int32':
@@ -115,21 +110,18 @@ function parsePacket(buffer , packetStructure) {
 
     result[name] = value;
   });
-
-  // console.log(result);
+ 
   symb = result["tradingSymbol"];
   if(/\d/.test(symb)){
     temp = symb.search(/\d/);
     ul = symb.slice(0, temp);
     expiry = symb.slice(temp, temp+7);
-    strikeP = symb.slice(temp+7, -2);
-    // console.log(ul, ':', expiry, ':', strikeP);
+    strikeP = symb.slice(temp+7, -2); 
     if(symb.slice(-2) === "CE"){
       found = false;
       for(s of rows){
         if(s.underlying === ul && s.expiry === expiry && s.strikePrice === strikeP){
-          // console.log("Called updateeeeeeeeee", BigInt(s.callTimestamp), BigInt(result["timestamp"]));
-          // callTs, putTs, ltp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+          
           s.update(result["timestamp"], s.putTimestamp, result["lastTradedPrice"], 
             s.putLtp, result["lastTradedQuantity"], s.putLtq, result["volume"], 
             s.putVol, result["askPrice"], result["askQuantity"], s.putAskQ, 
@@ -139,7 +131,6 @@ function parsePacket(buffer , packetStructure) {
           found = true;
         }
       }
-      // symbol, ul, expiry, callTs, putTs, sp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
       if(!found){
         rows.push(new row(symb, ul, expiry, result["timestamp"], 0, strikeP,
         result["lastTradedPrice"], 0, result["lastTradedQuantity"], 0, result["volume"], 0, 
@@ -153,8 +144,7 @@ function parsePacket(buffer , packetStructure) {
       found = false;
       for(s of rows){
         if(s.underlying === ul && s.expiry === expiry && s.strikePrice === strikeP){
-          // console.log("Called updateeeeeeeeee", BigInt(s.putTimestamp), BigInt(result["timestamp"]));
-          // callTs, putTs, ltp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
+          
           s.update(s.callTimestamp, result["timestamp"],   
             s.callLtp, result["lastTradedPrice"], s.callLtq, result["lastTradedQuantity"],  
             s.callVol, result["volume"], s.callAskP, s.callAskQ, result["askQuantity"],
@@ -164,8 +154,6 @@ function parsePacket(buffer , packetStructure) {
           found = true;
         }
       }
-      // symbol, ul, expiry, callTs, putTs, sp, callLtp, putLtp, callLtq, putLtq, callVol, putVol, callAskP, callAskQ, putAskQ, putAskP, 
-      // callBidP, callBidQ, putBidQ, putBidP, callOI, putOI, callPCP, putPCP, callPOI, putPOI
       if(!found){
         rows.push(new row(symb, ul, expiry, 0, result["timestamp"], strikeP,
         0, result["lastTradedPrice"], 0, result["lastTradedQuantity"], 0, result["volume"],
@@ -204,13 +192,12 @@ serverClient.on('data', (data) => {
     receivedData = receivedData.subarray(chunkSize);
     parseData = parsePacket(chunk, packetStructure);
     console.log(parseData);
-    console.log("-----------------------------------");
-    packets.push(parseData);
+    console.log("-----------------------------------"); 
     
   }
 
     // Send the processed data to the connected WebSocket clients
-    broadcastData(packets);
+    broadcastData();
 });
      
  
@@ -219,10 +206,7 @@ serverClient.on('end', () => {
   console.log('Data transmission completed');
 });
 
-// res.on('finish', () => {
-//     // Close the TCP/IP connection when the response is finished
-//     serverClient.end();
-//   });
+ 
   
     // Handle errors
 serverClient.on('error', (error) => {
@@ -234,22 +218,17 @@ serverClient.on('error', (error) => {
 function broadcastData(data) {
     // Send the data to all connected WebSocket clients 
     for (const client of clients) {
-      if (client.readyState === WebSocket.OPEN) {
-        console.log("sending data to client");
-        // (Object.entries(data)).forEach((entry) => {
-        //   client.send(JSON.stringify(entry));
-        // });
+      if (client.readyState === WebSocket.OPEN) { 
+        
         temp = "";
         stocks.forEach((entry) => {
-          // console.log(JSON.stringify(entry));
-          // client.send(JSON.stringify(entry));
+          
           temp = temp.concat(JSON.stringify(entry));
           temp = temp.concat('-');
     
         });
         rows.forEach((entry) => {
-          // console.log(JSON.stringify(entry));
-          // client.send(JSON.stringify(entry));
+          
           temp = temp.concat(JSON.stringify(entry));
           temp = temp.concat('-');
     
@@ -257,8 +236,7 @@ function broadcastData(data) {
         });
         temp = temp.slice(0, -1)
         client.send(temp);
-        // client.send(JSON.stringify(data));
-        // client.send("end");
+        
       }
     }
 }

@@ -1,22 +1,37 @@
 import React from 'react';
-// import impliedVolatility from './implied-volatility';
-// const iv = require("./implied-volatility");
-import { impliedVolatility } from './DataDisplay.js';
-const Table = ({ data }) => {
-// console.log(impliedVolatility);
-if (!data || data.length == 0) {
+
+const Table = ({ data, strikeThreshold }) => {
+
+
+if (!data || data.length === 0) {
     return null; // If data is undefined, return null to not render anything
 }   
+const getCellClassNameCalls= (strikePrice) => {
+  if (parseInt(strikePrice)*100 < parseInt(strikeThreshold)) {
+    return 'left-color'; // Apply left color for strike price less than the threshold
+  } else {
+    return '';  
+  }
+};
+const getCellClassNamePuts= (strikePrice) => {
+  if (parseInt(strikePrice)*100 > parseInt(strikeThreshold)) {
+    return 'left-color'; 
+  } else {
+    return '';  
+  }
+};
   return (
     <table>
       <thead>
         <tr>
-          <th class="text-center" id ="calls" colspan ="8">CALLS</th>
-          {/* <th></th> */}
-          <th class="text-center" id ="calls" colspan ="11">PUTS</th>
+          <th class="text-center" id ="calls" colspan ="2"></th>
+          <th class="text-center" id ="calls" colspan ="7">CALLS</th>
+          <th class="text-center" id ="calls" colspan ="1"></th>
+          <th class="text-center" id ="calls" colspan ="10">PUTS</th>
         </tr>
         <tr>
-          <th>Symbol</th>
+          <th>Underlying</th>
+          <th>Expiry</th>
           <th>Volume</th>
           <th>IV</th>
           <th>LTP</th>
@@ -36,28 +51,26 @@ if (!data || data.length == 0) {
       </thead>
       <tbody>
         {data.map((item) => (
-          
           <tr key={item.id}>
-            <td class ="bg-yellow">{item.symbol}</td>
-            <td class ="bg-yellow">{item.callVol}</td>
-            <td class ="bg-yellow">{item.callImpliedVolatility ? item.callImpliedVolatility * 100 : '-'}</td>
-            <td class ="bg-yellow">{item.callLtp}</td>
-            <td class ="bg-yellow">{item.callBidQ}</td>
-            <td class ="bg-yellow">{item.callBidP}</td>
-            <td class ="bg-yellow">{item.callAskP}</td>
-            <td class ="bg-yellow">{item.callAskQ}</td>
+            <td>{item.underlying}</td>
+            <td>{item.expiry}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{item.callVol}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{item.impliedVolatilityCall}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{parseInt(item.callLtp)/100}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{item.callBidQ}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{parseInt(item.callBidP)/100}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{parseInt(item.callAskP)/100}</td>
+            <td className={getCellClassNameCalls(item.strikePrice)}>{item.callAskQ}</td>
             <td>{item.strikePrice}</td>
-            <td>{item.putBidQ}</td>
-            <td>{item.putBidP}</td>
-            <td>{item.putAskP}</td>
-            <td>{item.putAskQ}</td>
-            <td>{item.putLtp}</td>
-            <td>{item.putImpliedVolatility ? item.putImpliedVolatility * 100 : '-'}</td>
-            <td>{item.putVol}</td> 
+            <td className={getCellClassNamePuts(item.strikePrice)}>{item.putBidQ}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{parseInt(item.putBidP)/100}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{parseInt(item.putAskP)/100}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{item.putAskQ}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{parseInt(item.putLtp)/100}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{item.impliedVolatilityPut}</td>
+            <td className={getCellClassNamePuts(item.strikePrice)}>{item.putVol}</td> 
           </tr>
-        )
-        
-        )}
+        ))}
       </tbody>
     </table>
   );
